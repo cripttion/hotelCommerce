@@ -1,24 +1,48 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import Home from './pages/home/Home';
 import Cart from './pages/cart/Cart';
 import Login from './pages/login/Login';
 import Header from './components/head/Header';
 
-
 function App() {
-  return (
-    <Router>
-      
-          <Header />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/login" element={<Login />} />
+  const [currentRoute, setCurrentRoute] = useState(window.location.pathname);
 
-        </Routes>
-    </Router>
+  const handleNavigation = (path) => {
+    window.history.pushState({ path }, '', path);
+    setCurrentRoute(path);
+  };
+
+  useEffect(() => {
+    window.addEventListener('popstate', () => {
+      setCurrentRoute(window.location.pathname);
+    });
+
+    return () => {
+      window.removeEventListener('popstate', () => {
+        setCurrentRoute(window.location.pathname);
+      });
+    };
+  }, []);
+
+  const renderComponent = () => {
+    switch (currentRoute) {
+      case '/':
+        return <Home />;
+      case '/cart':
+        return <Cart />;
+      case '/login':
+        return <Login />;
+      default:
+        return <Home />;
+    }
+  };
+
+  return (
+    <div>
+      <Header handleNavigation={handleNavigation} />
+      {renderComponent()}
+    </div>
   );
 }
 
